@@ -1,0 +1,17 @@
+#%PAM-1.0
+# {{ ansible_managed }}
+{% if pam_application.description is defined %}
+
+#
+# {{ pam_application.description }}
+#
+{% endif %}
+
+{% for entry in pam_application.directives %}
+{% if entry.name is defined -%}
+{{ entry.interface.ljust(13) }} {{ entry.control.ljust(16) }} {{ entry.name }}.so{% if entry.arguments is defined %} {{ entry.arguments }}{% endif %}
+{% elif entry.include is defined  %}
+{{ entry.interface.ljust(13) }} include          {{ entry.include }}
+{%- endif %}
+
+{% endfor %}

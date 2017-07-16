@@ -1,0 +1,86 @@
+---
+# tasks file for pam
+
+- name: "Require Correct Linux Distribution"
+  assert:
+    that: ansible_distribution | lower in ['redhat', 'centos']
+    msg:  "This Linux distrution is not supported by the role."
+  tags: pam
+
+- name: "Install PAM"
+  package:
+    name: "pam{% if pam_version not in ['', 'latest'] %}-{{ pam_version }}{% endif %}"
+    state: "{% if pam_version != 'latest' %}present{% else %}latest{% endif %}"
+  tags: pam
+
+- name: "Safety PAM Job"
+  cron:
+    name:   pam-safety
+    minute: '*/15'
+    state:  present
+    user:   root
+    job:    "[ -d /etc/pam.d.safe ] && mkdir -p /etc/pam.d && rsync -apcI /etc/pam.d.safe/* /etc/pam.d/"
+  when: pam_safety_enabled | default('present') == 'present'
+  tags: pam
+
+- name: "Disable Safety sudoers Job"
+  cron: name=pam-safety state=absent
+  when: pam_safety_enabled | default('present') == 'absent'
+  tags: pam
+
+# For the following 'oddjob' see https://access.redhat.com/solutions/3972
+- name: "Install oddjob"
+  package:
+    name: "{{ item }}{% if oddjob_version not in ['', 'latest'] %}-{{ oddjob_version }}{% endif %}"
+    state: "{% if oddjob_version != 'latest' %}present{% else %}latest{% endif %}"
+  register: oddjob_pkg
+  with_items:
+   - oddjob
+   - oddjob-mkhomedir
+  tags: pam
+
+- name: "Restart Services Related to oddjob"
+  service: name="{{ item }}" state=started enabled=yes
+  when: oddjob_pkg | changed
+  with_items:
+   - messagebus
+   - oddjobd
+  tags: pam
+
+- name: "Create Configuration Files"
+  template:
+    src:    etc/pam.d/template.j2
+    dest:   "{{ pam_base_dir }}/{{ pam_application.name }}"
+    force:  yes
+    owner:  root
+    group:  root
+    mode:   '0644'
+    seuser: system_u
+    serole: object_r
+    setype: etc_t
+  with_items:
+   - "{{ pam_applications }}"
+  loop_control:
+    loop_var: pam_application
+  tags: pam
+
+- name: "Create Links"
+  file:
+    src:    "{{ pam_base_dir }}/{{ item.name }}"
+    dest:   "{{ pam_base_dir }}/{{ item.link }}"
+    state:  link
+    force:  yes
+  when: item.link is defined
+  with_items:
+   - "{{ pam_applications }}"
+  tags: pam
+
+- name: "Copy Safety PAM Directory"
+  shell: cp -fR --preserve=mode,ownership,timestamps,context /etc/pam.d /etc/pam.d.safe
+  changed_when: false
+  tags: pam
+
+- name: "Clean Safety PAM"
+  file: path=/etc/pam.d.safe state=absent
+  when: pam_safety_enabled | default('present') == 'absent'
+  tags: pam
