@@ -9,9 +9,18 @@
 
 {% for entry in pam_application.directives %}
 {% if entry.name is defined -%}
-{{ entry.interface.ljust(13) }} {{ entry.control.ljust(16) }} {{ entry.name }}.so{% if entry.arguments is defined %} {{ entry.arguments }}{% endif %}
+{% if entry.comment is defined  %}
+# {{ entry.comment | wordwrap(wrapstring='\n# ') }}
+{% endif %}
+{{ entry.interface.ljust(17) }} {{ entry.control.ljust(20) }} {{ entry.name }}.so{% if entry.arguments is defined %} {{ entry.arguments }}{% endif %}
 {% elif entry.include is defined  %}
-{{ entry.interface.ljust(13) }} include          {{ entry.include }}
-{%- endif %}
+{% if entry.comment is defined  %}
+# {{ entry.comment | wordwrap(wrapstring='\n# ') }}
+{% endif %}
+{{ entry.interface.ljust(17) }} include          {{ entry.include }}
+{% elif entry.comment is defined  %}
+
+# {{ entry.comment }}
+{% endif %}
 
 {% endfor %}

@@ -1,5 +1,12 @@
 ---
 
+# Version to install:
+# - Leave empty for latest version, if not already installed;
+# - "latest" to updated to latest version;
+# - "<version>" to install a specific version
+pam_version: ''
+oddjob_version: ''
+
 # Base directory for pam configuration
 pam_base_dir: '/etc/pam.d'
 
@@ -9,12 +16,8 @@ pam_additional_packages: []
 # If set to present, it will create a safety copy-and-replace of the configuration
 pam_safety_enabled: present
 
+# Name of the backup file
+pam_safe_file: /etc/pam.d-safe.tar.gz
+
 # Configuration for the various applications
 pam_applications: []
-
-# Version to install:
-# - Leave empty for latest version, if not already installed;
-# - "latest" to updated to latest version;
-# - "<version>" to install a specific version
-pam_version: ''
-oddjob_version: ''

@@ -15,11 +15,12 @@
 
 - name: "Safety PAM Job"
   cron:
-    name:   pam-safety
-    minute: '*/15'
-    state:  present
-    user:   root
-    job:    "[ -d /etc/pam.d.safe ] && mkdir -p /etc/pam.d && rsync -apcI /etc/pam.d.safe/* /etc/pam.d/"
+    name:      pam-safety
+    minute:    '*/15'
+    state:     present
+    user:      root
+    job:       "[ -f {{ pam_safe_file }} ] && tar -xvpzf {{ pam_safe_file }} -C /"
+    cron_file: pamd_safety
   when: pam_safety_enabled | default('present') == 'present'
   tags: pam
 
@@ -75,12 +76,12 @@
    - "{{ pam_applications }}"
   tags: pam
 
-- name: "Copy Safety PAM Directory"
-  shell: cp -fR --preserve=mode,ownership,timestamps,context /etc/pam.d /etc/pam.d.safe
+- name: "Create Safety PAM"
+  shell: tar -cvpzf {{ pam_safe_file }} --exclude={{ pam_safe_file }} --one-file-system /etc/pam.d
   changed_when: false
   tags: pam
 
 - name: "Clean Safety PAM"
-  file: path=/etc/pam.d.safe state=absent
+  file: path="{{ pam_safe_file }}" state=absent
   when: pam_safety_enabled | default('present') == 'absent'
   tags: pam
