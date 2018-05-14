@@ -7,10 +7,10 @@
 pam_version: ''
 oddjob_version: ''
 
-# Base directory for pam configuration
+# Base directory for PAM configuration
 pam_base_dir: '/etc/pam.d'
 
-# Base directory for pam configuration
+# List of additional packages to install together with PAM
 pam_additional_packages: []
 
 # If set to present, it will create a safety copy-and-replace of the configuration
@@ -19,5 +19,86 @@ pam_safety_enabled: present
 # Name of the backup file
 pam_safe_file: /etc/pam.d-safe.tar.gz
 
-# Configuration for the various applications
+# Configuration for the various application files
 pam_applications: []
+# # This is the default CentOS 7 system-auth file reported here as an example. Use
+# # the man page "pam.conf" for a full description of the items.
+# # Each entry will create a file in the system, entries that are not present will
+# # not touch existing files.
+#
+# # Name of the PAM file
+# - name: system-auth
+#   # Description of the file
+#   description: "System Authentication"
+#   # Directives inside the file. Each directive will create a line in the output file
+#   directives:
+#    # This is a comment that will appear in the final file
+#    - comment:   "AUTH Module"
+#    # Name of the PAM module
+#    - name:      pam_env
+#      # Comment that will appear in the directive
+#      comment:   "Set up the environment"
+#      # Type of PAM interface
+#      interface: auth
+#      # Control action for the directive
+#      control:   required
+#    # This next entry will create the following directive:
+#    #   auth        sufficient    pam_unix.so try_first_pass nullok
+#    - name:      pam_unix
+#      comment:   "Check the user is local"
+#      interface: auth
+#      control:   sufficient
+#      # Optional arguments for the directive
+#      arguments: "try_first_pass nullok"
+#    - name:      pam_deny
+#      comment:   "Deny all the other cases"
+#      interface: auth
+#      control:   required
+#
+#    # ACCOUNT Module
+#    - comment:   "ACCOUNT Module"
+#    - name:      pam_unix
+#      comment:   "Check the user is local"
+#      interface: account
+#      control:   required
+#
+#    # PASSWORD Module
+#    - comment:   "PASSWORD Module"
+#    - name:      pam_pwquality
+#      comment:   "Password quality"
+#      interface: password
+#      control:   requisite
+#      arguments: "try_first_pass local_users_only retry=3 authtok_type="
+#    - name:      pam_unix
+#      comment:   "Local users' passwords"
+#      interface: password
+#      control:   sufficient
+#      arguments: "try_first_pass use_authtok nullok sha512 shadow"
+#    - name:      pam_deny
+#      comment:   "Deny all the other cases"
+#      interface: password
+#      control:   required
+#
+#    # SESSION Module
+#    - comment:   "SESSION Module"
+#    - name:      pam_keyinit
+#      comment:   "Manages the keyrings for the session"
+#      interface: session
+#      control:   optional
+#      arguments: revoke
+#    - name:      pam_limits
+#      comment:   "Enforces resources usage limits"
+#      interface: session
+#      control:   required
+#    - name:      pam_systemd
+#      comment:   "Manages the keyrings for the session"
+#      interface: -session
+#      control:   optional
+#    - name:      pam_succeed_if
+#      comment:   "Manages the keyrings for the session"
+#      interface: session
+#      control:   "[success=1 default=ignore]"
+#      arguments: "service in crond quiet use_uid"
+#    - name:      pam_unix
+#      interface: session
+#      control:   required

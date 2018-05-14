@@ -1,38 +1,49 @@
-Role Name
-=========
+# role-pam
 
-A brief description of the role goes here.
+Ansible role to configure PAM (Pluggable Authentication Module).
 
-Requirements
-------------
+The role is fully generic and supports all the PAM settings.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Requirements
 
-Role Variables
---------------
+The role requires RHEL/CentOS 7 to work.
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+## Role Variables
 
-Dependencies
-------------
+The variables are fully documented in the [default configuration](defaults/main.yml) file, including their default values and some examples. This file contains all the settings that can be configured.
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Please refer to the default configuration file for the full list and use Linux man pages if you need more information on PAM.
 
-Example Playbook
-----------------
+Here is a brief summary of the role's variables:
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+| Variable                  | Default                  | Description                                       |
+| :---                      | :---                     | :---                                              |
+| `pam_version`             | `''`                     | PAM version to install.                           |
+| `oddjob_version`          | `''`                     | OddJob version to install.                        |
+| `pam_base_dir`            | `'/etc/pam.d'`           | Base directory for pam configuration.             |
+| `pam_additional_packages` | `[]`                     | List of additional packages to install together with PAM
+| `pam_safety_enabled`      | `present`                | If set to present, it will create a safety copy-and-replace of the configuration |
+| `pam_safe_file`           | `/etc/pam.d-safe.tar.gz` | Name of the backup file.                          |
+| `pam_applications`        | `[]`                     | Configuration for the various application files.  |
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+## Example Playbook
 
-License
--------
+Using the role without any specific configuration is very simple:
 
-BSD
+```Yaml
+- hosts: servers
+  roles:
+   - role: pam
+```
 
-Author Information
-------------------
+## License
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+MIT
+
+## Author Information
+
+[Fabrizio Colonna](colofabrix@tin.it)
+
+## Contributors
+
+Pull requests are also very welcome. Please create a topic branch for your proposed changes. If you don't, this will create conflicts in your fork after the merge.
